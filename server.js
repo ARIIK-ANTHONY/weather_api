@@ -9,9 +9,9 @@ const PORT = process.env.PORT || 5000;
 
 // ===== MIDDLEWARE =====
 app.use(cors());
-<<<<<<< HEAD
+
 app.use(helmet());
-=======
+
 
 // Add security headers
 // With this safe configuration:
@@ -26,7 +26,7 @@ app.use(
     noSniff: true
   })
 );
->>>>>>> server.js
+
 
 // Debugging middleware
 app.use((req, res, next) => {
@@ -89,10 +89,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-<<<<<<< HEAD
-// ===== SERVER START =====
-=======
-
 // Add after your existing routes but before error handling
 app.get('/api/weather', (req, res) => {
   // Example response - replace with real weather data
@@ -116,10 +112,8 @@ app._router.stack
     const methods = Object.keys(layer.route.methods).map(m => m.toUpperCase()).join(', ');
     console.log(`${methods} ${layer.route.path}`);
   });
-console.log('=======================\n');
 
 // Start the server
->>>>>>> server.js
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
