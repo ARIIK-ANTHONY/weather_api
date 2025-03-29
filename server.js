@@ -5,55 +5,74 @@ const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000; // Define the PORT variable
+const PORT = process.env.PORT || 5000;
 
-// Enable CORS to allow requests from the frontend
+// ===== MIDDLEWARE =====
 app.use(cors());
-
-// Add security headers
 app.use(helmet());
 
-// Logging middleware for debugging
+// Debugging middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
 
-// Rate limiting for the /api-key endpoint
+// Rate limiting (specific to /api-key)
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use("/api-key", apiLimiter);
 
-// Default route for the root URL
+// ===== ROUTES =====
 app.get("/", (req, res) => {
   res.send("Welcome to the Weather API backend!");
 });
 
-// Endpoint to fetch the API key
 app.get("/api-key", (req, res) => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
     console.error("API key not found in .env file");
     return res.status(500).json({ error: "API key not found in .env file" });
   }
-  console.log("API Key sent to client:", apiKey); // Debugging
   res.json({ apiKey });
 });
 
-// Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ status: "Server is running", timestamp: new Date() });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
+// NEW WEATHER ENDPOINT
+app.get('/api/weather', (req, res) => {
+  // Example response - replace with real weather data
+  res.json({
+    location: "New York",
+    temperature: 72,
+    unit: "fahrenheit",
+    conditions: "sunny",
+    forecast: [
+      { day: "Monday", high: 75, low: 68 },
+      { day: "Tuesday", high: 78, low: 70 }
+    ]
+  });
 });
 
-// Start the server
+// ===== ERROR HANDLERS =====
+// 404 Handler (for undefined routes)
+app.use((req, res) => {
+  res.status(404).json({ error: "Endpoint not found" });
+});
+
+// Global error handler (MUST BE LAST MIDDLEWARE)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: "Internal server error",
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// ===== SERVER START =====
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
