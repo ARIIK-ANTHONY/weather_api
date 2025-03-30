@@ -41,65 +41,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update weather data display
   function displayWeatherInfo(data) {
-    console.log("Updating UI with data:", data); // Debugging
-
-    // Update city name
     cityElement.innerHTML = data.name;
-
-    // Update temperature
     currentTempElement.innerHTML = `${Math.round(data.main.temp)}°`;
-
-    // Update weather type
     weatherTypeElement.innerHTML = data.weather[0].main;
-
-    // Update humidity
     humidityElement.innerHTML = `${data.main.humidity}%`;
-
-    // Update wind speed
     windElement.innerHTML = `${Math.round(data.wind.speed)} ${
       currentUnit === "metric" ? "km/h" : "mph"
     }`;
-
-    // Update feels like temperature
     feelsLikeElement.innerHTML = `${Math.round(data.main.feels_like)}°`;
-
-    // Update pressure
     pressureElement.innerHTML = `${data.main.pressure} hPa`;
   }
 
   // Update 5-day forecast
   function displayForecast(data) {
-    // Clear the existing forecast content
     forecastContainer.innerHTML = "";
-
-    // Filter the forecast data to get one entry per day (every 8th entry in a 3-hour interval forecast)
     const forecastData = data.list.filter((item, index) => index % 8 === 0).slice(0, 5);
-
-    // Generate HTML for each day's forecast
     forecastData.forEach((forecast) => {
-      const dayName = formatShortDay(forecast.dt); // Format the day name
-      const iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`; // Weather icon
-      const weatherDescription = forecast.weather[0].main; // Weather description
-      const temperature = Math.round(forecast.main.temp); // Temperature
-
-      // Create a column for the forecast
+      const dayName = formatShortDay(forecast.dt);
+      const iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
+      const weatherDescription = forecast.weather[0].main;
+      const temperature = Math.round(forecast.main.temp);
       const forecastHTML = `
         <div class="col">
           <h3>${dayName}</h3>
-          <br />
           <img src="${iconUrl}" alt="${weatherDescription}" />
-          <br />
-          <p class="weather">${weatherDescription}</p>
+          <p>${weatherDescription}</p>
           <span>${temperature}°</span>
         </div>
       `;
-
-      // Append the forecast HTML to the container
       forecastContainer.innerHTML += forecastHTML;
     });
   }
 
-  // Fetch weather data from OpenWeatherMap
+  // Fetch weather data
   function fetchWeather(city) {
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${currentUnit}&appid=${apiKey}`;
     axios
@@ -111,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Fetch forecast data from OpenWeatherMap
+  // Fetch forecast data
   function fetchForecast(city) {
     const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${currentUnit}&appid=${apiKey}`;
     axios
@@ -128,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         apiKey = data.apiKey;
-        console.log("Fetched API Key:", apiKey); // Debugging
         if (!apiKey) {
           throw new Error("API key is missing. Check your backend configuration.");
         }
@@ -171,8 +144,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize app
   function init() {
     updateDateTime();
-    setInterval(updateDateTime, 60000); // Update time every minute
-    fetchWeather("Kigali"); // Default city
+    setInterval(updateDateTime, 60000);
+    fetchWeather("Kigali");
     fetchForecast("Kigali");
   }
 
