@@ -93,9 +93,8 @@ if (process.env.NODE_ENV === "production") {
   // Use HTTPS with certificates (production setup)
   const privateKey = fs.readFileSync("private-key.pem", "utf8");
   const certificate = fs.readFileSync("certificate.pem", "utf8");
-  const ca = fs.readFileSync("ca.pem", "utf8");
 
-  const credentials = { key: privateKey, cert: certificate, ca: ca };
+  const credentials = { key: privateKey, cert: certificate };
 
   https.createServer(credentials, app).listen(443, () => {
     console.log("HTTPS Server is running on https://localhost:443");
