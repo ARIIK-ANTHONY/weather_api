@@ -2,14 +2,31 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
+const https = require("https");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ===== MIDDLEWARE =====
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: ['https://yourfrontenddomain.com'],  // Replace with your frontend domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      ...helmet.contentSecurityPolicy.defaults,
+      'cross-origin-opener-policy': 'same-origin',
+      'cross-origin-embedder-policy': 'require-corp',
+      'origin-agent-cluster': '?1', // Enforce origin-keyed agent cluster
+    }
+  }
+}));
 
 // Debugging middleware
 app.use((req, res, next) => {
@@ -19,8 +36,8 @@ app.use((req, res, next) => {
 
 // Rate limiting (specific to /api-key)
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
 });
 app.use("/api-key", apiLimiter);
 
@@ -44,7 +61,6 @@ app.get("/health", (req, res) => {
 
 // NEW WEATHER ENDPOINT
 app.get('/api/weather', (req, res) => {
-  // Example response - replace with real weather data
   res.json({
     location: "New York",
     temperature: 72,
@@ -66,13 +82,27 @@ app.use((req, res) => {
 // Global error handler (MUST BE LAST MIDDLEWARE)
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     error: "Internal server error",
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-// ===== SERVER START =====
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// ===== SERVER START (HTTPS) =====
+if (process.env.NODE_ENV === "production") {
+  // Use HTTPS with certificates (production setup)
+  const privateKey = fs.readFileSync("path/to/private-key.pem", "utf8");
+  const certificate = fs.readFileSync("path/to/certificate.pem", "utf8");
+  const ca = fs.readFileSync("path/to/ca.pem", "utf8");
+
+  const credentials = { key: privateKey, cert: certificate, ca: ca };
+
+  https.createServer(credentials, app).listen(443, () => {
+    console.log("HTTPS Server is running on https://localhost:443");
+  });
+} else {
+  // For development (HTTP)
+  app.listen(PORT, () => {
+    console.log(`HTTP Server is running on http://localhost:${PORT}`);
+  });
+}
