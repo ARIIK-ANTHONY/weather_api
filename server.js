@@ -5,7 +5,7 @@ const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;  // Change to 3000 or another port
 
 // ===== MIDDLEWARE =====
 app.use(cors());
