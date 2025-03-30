@@ -3,30 +3,24 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
+const compression = require("compression");
+const fs = require("fs");
 
 const app = express();
-const PORT = process.env.PORT || 3000;  // Change to 3000 or another port
+const PORT = process.env.PORT || 5000; // Uses PORT from .env (defaults to 5000 if not set)
 
-// ===== MIDDLEWARE =====
+app.use(compression());
 app.use(cors());
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+  frameguard: { action: 'deny' },
+  xssFilter: true,
+  noSniff: true
+}));
 
-app.use(helmet());
-
-
-// Add security headers
-// With this safe configuration:
-app.use(
-  helmet({
-    contentSecurityPolicy: false,  // Disable problematic module
-    crossOriginEmbedderPolicy: false,
-    // Keep other protections:
-    hsts: { maxAge: 31536000, includeSubDomains: true },
-    frameguard: { action: 'deny' },
-    xssFilter: true,
-    noSniff: true
-  })
-);
-
+const logStream = fs.createWriteStream('/home/ubuntu/weather_api/server.log', { flags: 'a' });
 
 // Debugging middleware
 app.use((req, res, next) => {
@@ -34,7 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting (specific to /api-key)
+// Rate limiting for /api-key
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -42,9 +36,7 @@ const apiLimiter = rateLimit({
 app.use("/api-key", apiLimiter);
 
 // ===== ROUTES =====
-app.get("/", (req, res) => {
-  res.send("Welcome to the Weather API backend!");
-});
+app.get("/", (req, res) => res.send("Welcome to the Weather API backend!"));
 
 app.get("/api-key", (req, res) => {
   const apiKey = process.env.API_KEY;
@@ -55,13 +47,9 @@ app.get("/api-key", (req, res) => {
   res.json({ apiKey });
 });
 
-app.get("/health", (req, res) => {
-  res.json({ status: "Server is running", timestamp: new Date() });
-});
+app.get("/health", (req, res) => res.json({ status: "Server is running", timestamp: new Date() }));
 
-// NEW WEATHER ENDPOINT
-app.get('/api/weather', (req, res) => {
-  // Example response - replace with real weather data
+app.get("/api/weather", (req, res) => {
   res.json({
     location: "New York",
     temperature: 72,
@@ -74,37 +62,16 @@ app.get('/api/weather', (req, res) => {
   });
 });
 
-// ===== ERROR HANDLERS =====
-// 404 Handler (for undefined routes)
-app.use((req, res) => {
-  res.status(404).json({ error: "Endpoint not found" });
-});
+// 404 Handler
+app.use((req, res) => res.status(404).json({ error: "Endpoint not found" }));
 
-// Global error handler (MUST BE LAST MIDDLEWARE)
+// Global Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    error: "Internal server error",
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
+  res.status(500).json({ error: "Internal server error", message: process.env.NODE_ENV === 'development' ? err.message : undefined });
 });
 
-// Add after your existing routes but before error handling
-app.get('/api/weather', (req, res) => {
-  // Example response - replace with real weather data
-  res.json({
-    location: "New York",
-    temperature: 72,
-    unit: "fahrenheit",
-    conditions: "sunny",
-    forecast: [
-      { day: "Monday", high: 75, low: 68 },
-      { day: "Tuesday", high: 78, low: 70 }
-    ]
-  });
-});
-
-// Debug: Print all registered routes
+// Debug: Print registered routes
 console.log('\n=== Registered Routes ===');
 app._router.stack
   .filter(layer => layer.route)
@@ -113,7 +80,9 @@ app._router.stack
     console.log(`${methods} ${layer.route.path}`);
   });
 
-// Start the server
+// Start the server on the correct port
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  const message = `Server is running on http://0.0.0.0:${PORT}\n`;
+  console.log(message);
+  logStream.write(message);
 });
