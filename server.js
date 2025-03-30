@@ -4,14 +4,16 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const fs = require("fs");
 const https = require("https");
+const http = require("http");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Default port 3000 if not defined in .env
+const HTTPS_PORT = process.env.HTTPS_PORT || 443; // Default to 443 for production
 
 // ===== MIDDLEWARE =====
 app.use(cors({
-  origin: ['https://oneariik.tech'],  // Replace with your frontend domain
+  origin: ['https://yourfrontenddomain.com'],  // Replace with your frontend domain
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
@@ -96,8 +98,9 @@ if (process.env.NODE_ENV === "production") {
 
   const credentials = { key: privateKey, cert: certificate };
 
-  https.createServer(credentials, app).listen(443, () => {
-    console.log("HTTPS Server is running on https://localhost:443");
+  // Ensure it's listening on HTTPS_PORT (443) for production
+  https.createServer(credentials, app).listen(HTTPS_PORT, () => {
+    console.log(`HTTPS Server is running on https://localhost:${HTTPS_PORT}`);
   });
 } else {
   // For development (HTTP)
