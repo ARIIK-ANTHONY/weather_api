@@ -9,18 +9,25 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 5000; // Uses PORT from .env (defaults to 5000 if not set)
 
+// Middleware
 app.use(compression());
 app.use(cors());
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  hsts: { maxAge: 31536000, includeSubDomains: true },
-  frameguard: { action: 'deny' },
-  xssFilter: true,
-  noSniff: true
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+    frameguard: { action: "deny" },
+    xssFilter: true,
+    noSniff: true,
+  })
+);
 
-const logStream = fs.createWriteStream('/home/ubuntu/weather_api/server.log', { flags: 'a' });
+// Create a log file for server logs
+const logStream = fs.createWriteStream(
+  "/home/ubuntu/weather_api/server.log",
+  { flags: "a" }
+);
 
 // Debugging middleware
 app.use((req, res, next) => {
@@ -47,7 +54,9 @@ app.get("/api-key", (req, res) => {
   res.json({ apiKey });
 });
 
-app.get("/health", (req, res) => res.json({ status: "Server is running", timestamp: new Date() }));
+app.get("/health", (req, res) =>
+  res.json({ status: "Server is running", timestamp: new Date() })
+);
 
 app.get("/api/weather", (req, res) => {
   res.json({
@@ -57,8 +66,8 @@ app.get("/api/weather", (req, res) => {
     conditions: "sunny",
     forecast: [
       { day: "Monday", high: 75, low: 68 },
-      { day: "Tuesday", high: 78, low: 70 }
-    ]
+      { day: "Tuesday", high: 78, low: 70 },
+    ],
   });
 });
 
@@ -68,15 +77,20 @@ app.use((req, res) => res.status(404).json({ error: "Endpoint not found" }));
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: "Internal server error", message: process.env.NODE_ENV === 'development' ? err.message : undefined });
+  res.status(500).json({
+    error: "Internal server error",
+    message: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
 });
 
-// Debug: Print registered routes
-console.log('\n=== Registered Routes ===');
+// Debug: Print all registered routes
+console.log("\n=== Registered Routes ===");
 app._router.stack
-  .filter(layer => layer.route)
-  .forEach(layer => {
-    const methods = Object.keys(layer.route.methods).map(m => m.toUpperCase()).join(', ');
+  .filter((layer) => layer.route)
+  .forEach((layer) => {
+    const methods = Object.keys(layer.route.methods)
+      .map((m) => m.toUpperCase())
+      .join(", ");
     console.log(`${methods} ${layer.route.path}`);
   });
 
