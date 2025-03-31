@@ -12,6 +12,9 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+// Serve static files from the "public" directory
+app.use(express.static("public"));
+
 // Rate Limiting
 const apiKeyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
