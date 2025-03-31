@@ -1,21 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Configuration
   const config = {
     defaultCity: "Kigali",
     apiEndpoints: {
-      backend: window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api-key' 
-        : '/api-key',
+      backend: 'http://localhost:5000/api-key',
       weather: 'https://api.openweathermap.org/data/2.5/weather',
       forecast: 'https://api.openweathermap.org/data/2.5/forecast'
     }
   };
 
-  // State
   let currentUnit = "metric";
   let apiKey = "";
 
-  // DOM Elements
   const elements = {
     time: document.querySelector("#current-time"),
     day: document.querySelector("#current-day"),
@@ -33,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
     forecastContainer: document.querySelector(".week-forecast")
   };
 
-  // Helper Functions
   const helpers = {
     formatTime: date => date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     formatDay: date => date.toLocaleDateString("en-US", { weekday: "long" }),
@@ -45,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Weather Functions
   const weather = {
     displayCurrent: data => {
       elements.city.textContent = data.name;
@@ -56,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
       elements.feelsLike.textContent = `${Math.round(data.main.feels_like)}°`;
       elements.pressure.textContent = `${data.main.pressure} hPa`;
     },
-    
     displayForecast: data => {
       elements.forecastContainer.innerHTML = data.list
         .filter((_, index) => index % 8 === 0)
@@ -71,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         `).join('');
     },
-    
     fetchData: async (endpoint, city) => {
       try {
         const response = await axios.get(
@@ -80,66 +71,30 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.data;
       } catch (error) {
         console.error(`Error fetching ${endpoint.includes('forecast') ? 'forecast' : 'weather'} data:`, error);
+        alert("Failed to fetch weather data. Please try again later.");
         throw error;
       }
     }
   };
 
-  // API Key Management
   const api = {
     fetchKey: async () => {
       try {
         const response = await fetch(config.apiEndpoints.backend);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch API key: ${response.statusText}`);
+        }
         const data = await response.json();
         if (!data.apiKey) throw new Error("Invalid API key response");
         apiKey = data.apiKey;
       } catch (error) {
         console.error("Error fetching API key:", error);
+        alert("Failed to fetch API key. Please check your backend server.");
         throw error;
       }
     }
   };
 
-  // Event Handlers
-  const handlers = {
-    handleSearch: async event => {
-      event.preventDefault();
-      const city = elements.searchInput.value.trim();
-      if (city) {
-        try {
-          const [current, forecast] = await Promise.all([
-            weather.fetchData(config.apiEndpoints.weather, city),
-            weather.fetchData(config.apiEndpoints.forecast, city)
-          ]);
-          weather.displayCurrent(current);
-          weather.displayForecast(forecast);
-          elements.searchInput.value = "";
-        } catch {
-          alert("City not found. Please try again.");
-        }
-      }
-    },
-    
-    handleUnitChange: unit => async event => {
-      event.preventDefault();
-      if (currentUnit !== unit) {
-        currentUnit = unit;
-        const city = elements.city.textContent;
-        try {
-          const [current, forecast] = await Promise.all([
-            weather.fetchData(config.apiEndpoints.weather, city),
-            weather.fetchData(config.apiEndpoints.forecast, city)
-          ]);
-          weather.displayCurrent(current);
-          weather.displayForecast(forecast);
-        } catch {
-          alert("Error updating units. Please try again.");
-        }
-      }
-    }
-  };
-
-  // Initialization
   const init = async () => {
     try {
       await api.fetchKey();
@@ -153,11 +108,25 @@ document.addEventListener("DOMContentLoaded", function () {
       weather.displayCurrent(current);
       weather.displayForecast(forecast);
       
-      // Event Listeners
-      elements.searchForm.addEventListener("submit", handlers.handleSearch);
-      elements.celsiusLink.addEventListener("click", handlers.handleUnitChange("metric"));
-      elements.fahrenheitLink.addEventListener("click", handlers.handleUnitChange("imperial"));
-      
+      elements.searchForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        const city = elements.searchInput.value.trim();
+        if (!city) {
+          alert("Please enter a city name.");
+          return;
+        }
+        try {
+          const [current, forecast] = await Promise.all([
+            weather.fetchData(config.apiEndpoints.weather, city),
+            weather.fetchData(config.apiEndpoints.forecast, city)
+          ]);
+          weather.displayCurrent(current);
+          weather.displayForecast(forecast);
+          elements.searchInput.value = "";
+        } catch {
+          alert("City not found. Please try again.");
+        }
+      });
     } catch (error) {
       alert("Failed to initialize application. Please try again later.");
       console.error("Initialization error:", error);
