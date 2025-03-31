@@ -1,3 +1,16 @@
+/* Variables for Colors */
+:root {
+  --background-light: #f5f7fa;
+  --background-dark: #c3cfe2;
+  --text-dark: #2d3748;
+  --text-light: #718096;
+  --primary: #4299e1;
+  --primary-hover: #3182ce;
+  --secondary: #4a5568;
+  --border: #cbd5e0;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
 /* General Styles */
 * {
   margin: 0;
@@ -6,23 +19,13 @@
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: var(--dark);
-  min-height: 100vh;
-  line-height: 1.6;
-}
-
-
-
-
-body {
   max-width: 900px;
   margin: 0 auto;
-  background-color: #f5f7fa;
-  color: #2d3748;
-  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--background-light) 0%, var(--background-dark) 100%);
+  color: var(--text-dark);
+  font-family: 'Inter', Arial, sans-serif;
   min-height: 100vh;
+  line-height: 1.6;
   padding: 20px;
 }
 
@@ -30,14 +33,14 @@ main {
   margin-top: 30px;
   background-color: #ffffff;
   border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow);
   padding: 30px;
 }
 
 hr {
   max-width: 800px;
   margin: 30px auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
 }
 
 /* Search Section */
@@ -46,33 +49,33 @@ hr {
   padding: 8px 15px;
   width: 300px;
   border-radius: 8px;
-  border: 2px solid #cbd5e0;
-  font-family: "Oxygen Mono", monospace;
+  border: 2px solid var(--border);
+  font-family: "Oxygen Mono", Courier, monospace;
   font-size: 14px;
   transition: all 0.3s ease;
 }
 
 .search-form:focus {
   outline: none;
-  border-color: #4a5568;
+  border-color: var(--secondary);
   box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
 }
 
 button {
   display: inline-block;
-  border: 2px solid #4a5568;
+  border: 2px solid var(--secondary);
   border-radius: 8px;
   padding: 8px 15px;
-  font-family: "Oxygen Mono", monospace;
+  font-family: "Oxygen Mono", Courier, monospace;
   font-size: 14px;
-  background-color: #4299e1;
+  background-color: var(--primary);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 button:hover {
-  background-color: #3182ce;
+  background-color: var(--primary-hover);
   transform: translateY(-1px);
 }
 
@@ -84,11 +87,16 @@ button:hover {
 
 .measurements a {
   font-weight: bold;
-  color: #4a5568;
+  color: var(--secondary);
+  transition: color 0.3s ease;
+}
+
+.measurements a:hover {
+  color: var(--primary);
 }
 
 .measurements a.active {
-  color: #4299e1;
+  color: var(--primary);
 }
 
 /* Current Weather Section */
@@ -101,12 +109,12 @@ button:hover {
   max-width: 300px;
   font-size: 32px;
   font-weight: bold;
-  color: #2d3748;
+  color: var(--text-dark);
 }
 
 .temp-title {
   font-size: 120px;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", Arial, sans-serif;
   text-align: center;
   color: #2b6cb0;
   line-height: 1;
@@ -121,22 +129,32 @@ button:hover {
 .todays-info h2 {
   font-size: 36px;
   margin-bottom: 10px;
-  color: #4a5568;
+  color: var(--secondary);
 }
 
 .side-info {
   position: relative;
   left: 0;
   padding: 20px;
-  background-color: #f7fafc;
+  background-color: var(--background-light);
   border-radius: 10px;
   margin-top: 20px;
+}
+
+.side-info ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.side-info ul li {
+  margin-bottom: 10px;
 }
 
 /* Forecast Section */
 .week-forecast {
   text-align: center;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", Arial, sans-serif;
   margin-top: 40px;
   display: flex;
   flex-wrap: wrap;
@@ -144,7 +162,7 @@ button:hover {
 }
 
 .week-forecast .col {
-  background-color: #f7fafc;
+  background-color: var(--background-light);
   border-radius: 10px;
   padding: 15px;
   margin: 5px;
@@ -155,20 +173,20 @@ button:hover {
 
 .week-forecast .col:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
 .weather {
   margin-top: 5px;
   margin-bottom: 10px;
   font-size: 14px;
-  color: #4a5568;
+  color: var(--secondary);
 }
 
 h3 {
   font-size: 18px;
   margin-bottom: 10px;
-  color: #2d3748;
+  color: var(--text-dark);
 }
 
 /* Footer */
@@ -176,16 +194,16 @@ footer {
   margin-top: 60px;
   text-align: center;
   padding: 20px;
-  color: #718096;
+  color: var(--text-light);
 }
 
 footer a {
-  color: #4299e1;
+  color: var(--primary);
   font-weight: bold;
 }
 
 footer a:hover {
-  color: #3182ce;
+  color: var(--primary-hover);
   text-decoration: underline;
 }
 
@@ -194,16 +212,16 @@ footer a:hover {
   .temp-title {
     font-size: 80px;
   }
-  
+
   .todays-info h2 {
     font-size: 28px;
   }
-  
+
   .week-forecast .col {
     min-width: 100px;
     margin-bottom: 10px;
   }
-  
+
   .search-form {
     width: 200px;
   }
@@ -213,16 +231,16 @@ footer a:hover {
   main {
     padding: 15px;
   }
-  
+
   .temp-title {
     font-size: 60px;
   }
-  
+
   .week-forecast .col {
     min-width: 80px;
     padding: 10px 5px;
   }
-  
+
   .city-title {
     font-size: 24px;
   }
@@ -241,15 +259,4 @@ footer a:hover {
 .loading {
   opacity: 0.6;
   pointer-events: none;
-}
-
-/* Remove dots from the list */
-.side-info ul {
-  list-style-type: none;
-  padding: 0; 
-  margin: 0; 
-}
-
-.side-info ul li {
-  margin-bottom: 5px; /* Adjust spacing as needed */
 }
