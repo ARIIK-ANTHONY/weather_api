@@ -98,7 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Fetch API key from backend
   function fetchApiKey() {
-    return fetch("http://localhost:5000/api-key")
+    // Update the URL here depending on your backend setup (HTTP or HTTPS)
+    return fetch("http://localhost:5000/api-key") // Use http:// or https:// depending on your backend
       .then((response) => response.json())
       .then((data) => {
         apiKey = data.apiKey;
